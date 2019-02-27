@@ -6,7 +6,24 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy import log
+import requests
 
+def get_proxy():
+    return requests.get("http://127.0.0.1:5010/get/").content
+
+def getHtml():
+    # ....
+    retry_count = 5
+    proxy = get_proxy()
+    while retry_count > 0:
+        try:
+            html = requests.get('https://www.example.com', proxies={"http": "http://{}".format(proxy)})
+            # 使用代理访问
+            return True
+        except Exception:
+            retry_count -= 1
+    return False
 
 class DoubanspiderSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -78,7 +95,13 @@ class DoubanspiderDownloaderMiddleware(object):
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
-        return None
+        proxy_ip=get_proxy()
+        while proxy_ip=='no proxy!':
+            log.msg("Find Available IP",log.INFO)
+            proxy_ip=get_proxy()
+        if getHtml:
+            request.meta['proxy']="http://"+proxy_ip
+            log.msg("Using Proxy: {}".format(proxy_ip),log.INFO)
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
@@ -101,3 +124,5 @@ class DoubanspiderDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+        

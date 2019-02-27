@@ -9,7 +9,14 @@ import scrapy
 
 
 class DoubanspiderItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
+    id=scrapy.Field()
     title=scrapy.Field()
+    directors=scrapy.Field()
+    rate=scrapy.Field()
+    star=scrapy.Field()
+    casts=scrapy.Field()
+    genres=scrapy.Field()
+    imdb_id=scrapy.Field()
+    summary=scrapy.Field()
     comments=scrapy.Field()
+    cover=scrapy.Field()
