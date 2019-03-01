@@ -7,7 +7,9 @@
 
 from scrapy import signals
 from scrapy import log
+from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 import requests
+import random
 
 def get_proxy():
     return requests.get("http://127.0.0.1:5010/get/").content
@@ -18,7 +20,7 @@ def getHtml():
     proxy = get_proxy()
     while retry_count > 0:
         try:
-            html = requests.get('https://www.example.com', proxies={"http": "http://{}".format(proxy)})
+            requests.get('https://www.douban.com', proxies={"http": "http://{}".format(proxy)})
             # 使用代理访问
             return True
         except Exception:
@@ -95,13 +97,7 @@ class DoubanspiderDownloaderMiddleware(object):
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
-        proxy_ip=get_proxy()
-        while proxy_ip=='no proxy!':
-            log.msg("Find Available IP",log.INFO)
-            proxy_ip=get_proxy()
-        if getHtml:
-            request.meta['proxy']="http://"+proxy_ip
-            log.msg("Using Proxy: {}".format(proxy_ip),log.INFO)
+        pass
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
@@ -126,3 +122,16 @@ class DoubanspiderDownloaderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
         
+class MyUserAgentMiddleware(UserAgentMiddleware):
+    def __init__(self,user_agent):
+        self.user_agent=user_agent
+
+    @classmethod
+    def from_crawler(cls,crawler):
+        return cls(
+            user_agent=crawler.settings.get('MY_USER_AGENT')
+        )
+
+    def proccess_request(self,request,spider):
+        agent=random.choice(self.user_agent)
+        request.headers['User-Agent']=agent
