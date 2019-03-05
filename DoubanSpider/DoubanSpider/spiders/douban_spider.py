@@ -33,7 +33,7 @@ class DoubanSpider(scrapy.Spider):
                 item['cover']=movie_item['cover']
                 yield scrapy.Request(movie_item['url'],callback=self.parseMovieDetail,meta={'item':item})
             
-            for self.movie_start_count in range(self.movie_start_count,3600,20):
+            for self.movie_start_count in range(self.movie_start_count,70000,20):
                 yield scrapy.Request(("https://movie.douban.com/j/new_search_subjects?sort=T&range=0,100&tags=%E7%94%B5%E5%BD%B1&start={}").format(self.movie_start_count),callback=self.parse)
 
     # parse movie detail in movie object page
